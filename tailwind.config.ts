@@ -68,6 +68,18 @@ export default {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			boxShadow: {
+				'elegant': '0 10px 30px -10px hsl(var(--primary) / 0.15)',
+				'glow': '0 0 40px hsl(var(--primary-glow) / 0.2)',
+				'card': '0 4px 20px -4px hsl(var(--foreground) / 0.08)',
+				'floating': '0 20px 60px -15px hsl(var(--primary) / 0.25)'
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-subtle': 'var(--gradient-subtle)',
+				'gradient-hero': 'var(--gradient-hero)',
+				'gradient-card': 'var(--gradient-card)'
+			},
 			keyframes: {
 				'accordion-down': {
 					from: {
@@ -84,11 +96,62 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(20px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'slide-up': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(30px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'scale-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'scale(0.95)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'scale(1)'
+					}
+				},
+				'gradient-shift': {
+					'0%, 100%': {
+						'background-position': '0% 50%'
+					},
+					'50%': {
+						'background-position': '100% 50%'
+					}
+				},
+				'parallax-float': {
+					'0%, 100%': {
+						transform: 'translate3d(0, 0px, 0)'
+					},
+					'50%': {
+						transform: 'translate3d(0, -10px, 0)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.6s ease-out',
+				'slide-up': 'slide-up 0.6s ease-out',
+				'scale-in': 'scale-in 0.4s ease-out',
+				'gradient-shift': 'gradient-shift 6s ease-in-out infinite',
+				'parallax-float': 'parallax-float 20s ease-in-out infinite'
 			}
 		}
 	},
