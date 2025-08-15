@@ -124,13 +124,8 @@ const resources = {
       chatbot: {
         title: "Trợ lý của Kiên",
         placeholder: "Hỏi tôi bất cứ điều gì...",
-        suggestions: [
-          "Chương trình Ninja AI là gì?",
-          "Kinh nghiệm làm việc của Kiên",
-          "Cách apply chương trình",
-          "Lộ trình học AI",
-          "Cơ hội việc làm sau khóa học"
-        ]
+        quickSuggestions: "Gợi ý nhanh:",
+        suggestions: []
       },
       // Footer
       footer: {
@@ -278,13 +273,8 @@ const resources = {
       chatbot: {
         title: "Kian's Assistant",
         placeholder: "Ask me anything...",
-        suggestions: [
-          "What is Ninja AI Program?",
-          "Kian's work experience",
-          "How to apply for the program",
-          "AI learning roadmap",
-          "Job opportunities after course"
-        ]
+        quickSuggestions: "Quick suggestions:",
+        suggestions: []
       },
       // Footer
       footer: {

@@ -59,7 +59,6 @@ export function Header({ onChatbotToggle, isChatbotOpen }: HeaderProps) {
   const navItems = [
     { key: 'about', href: '/', label: t('nav.about') },
     { key: 'program', href: '/program/ninja-ai', label: t('nav.program') },
-    { key: 'contact', href: '/#contact', label: t('nav.contact') },
   ];
 
   return (

@@ -3,16 +3,22 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Send, 
-  X, 
-  Bot, 
+import {
+  Send,
+  X,
+  Bot,
   User,
   Loader2,
   Volume2,
-  VolumeX
+  VolumeX,
+  RotateCcw,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { systemPrompt } from '@/prompts/gemini-system-prompt';
+import { callGeminiApi } from '@/lib/gemini';
+import ReactMarkdown from './ReactMarkdown';
 
 interface ChatbotProps {
   onClose: () => void;
@@ -24,43 +30,93 @@ interface Message {
   content: string;
   sender: 'user' | 'bot';
   timestamp: Date;
-  emotion?: 'happy' | 'thinking' | 'curious' | 'neutral';
+  emotion?: 'greet' | 'sad' | 'happy' | 'thinking' | 'curious' | 'neutral';
+  suggestions?: string[];
 }
 
 export function Chatbot({ onClose, onResize }: ChatbotProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: 'Xin chào! Tôi là trợ lý AI của Kiên. Tôi có thể giúp bạn tìm hiểu về chương trình Ninja AI và kinh nghiệm của Kiên. Bạn muốn hỏi gì?',
-      sender: 'bot',
-      timestamp: new Date(),
-      emotion: 'happy'
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [quickSuggestions, setQuickSuggestions] = useState<string[]>([]);
   const [isMuted, setIsMuted] = useState(false);
+  const [isQuickSuggestionsOpen, setIsQuickSuggestionsOpen] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const emotionVideos = {
-    happy: '/placeholder-videos/happy.mp4',
-    thinking: '/placeholder-videos/thinking.mp4', 
-    curious: '/placeholder-videos/curious.mp4',
-    neutral: '/placeholder-videos/neutral.mp4'
+    greet: { entrance: '/mascot/greet.mp4', loop: '/mascot/greet_loop.mp4' },
+    sad: { entrance: '/mascot/sad.mp4', loop: '/mascot/sad_loop.mp4' },
+    happy: { entrance: '/mascot/neutral_1.mp4', loop: '/mascot/neutral_1_loop.mp4' },
+    thinking: { entrance: '/mascot/neutral_1.mp4', loop: '/mascot/neutral_1_loop.mp4' },
+    curious: { entrance: '/mascot/neutral_1.mp4', loop: '/mascot/neutral_1_loop.mp4' },
+    neutral: { entrance: '/mascot/neutral_1.mp4', loop: '/mascot/neutral_1_loop.mp4' }
   };
 
-  const currentEmotion = messages.length > 0 
+  const currentEmotion = messages.length > 0
     ? messages[messages.length - 1].emotion || 'neutral'
-    : 'neutral';
+    : 'greet';
+  
+  const [activeVideo, setActiveVideo] = useState(0);
+  const [videoSources, setVideoSources] = useState([
+    emotionVideos[currentEmotion].entrance,
+    emotionVideos[currentEmotion].loop,
+  ]);
 
-  const quickSuggestions = t('chatbot.suggestions', { returnObjects: true }) as string[];
+  useEffect(() => {
+    const newVideos = emotionVideos[currentEmotion];
+    setVideoSources([newVideos.entrance, newVideos.loop]);
+    setActiveVideo(0);
+  }, [currentEmotion]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    const generateGreeting = async () => {
+      setIsLoading(true);
+      try {
+        const lang = i18n.language === 'vi' ? 'Vietnamese' : 'English';
+        const finalPrompt = systemPrompt.replace('{{language}}', lang);
+        const response = await callGeminiApi(finalPrompt, [], "greet the user");
+        const greetingMessage: Message = {
+          id: '1',
+          content: response.content,
+          sender: 'bot',
+          timestamp: new Date(),
+          emotion: 'greet', // Force the first message emotion to be 'greet'
+        };
+        setMessages([greetingMessage]);
+        if (response.suggestions) {
+          setQuickSuggestions(response.suggestions);
+        }
+      } catch (error) {
+        console.error("Error generating greeting:", error);
+        const fallbackGreeting: Message = {
+          id: '1',
+          content: "Hello! I'm Kien's AI assistant. How can I help you today?",
+          sender: 'bot',
+          timestamp: new Date(),
+          emotion: 'greet', // Also force fallback greeting to use 'greet'
+        };
+        setMessages([fallbackGreeting]);
+        setQuickSuggestions([
+          "What is the Ninja AI Program?",
+          "Tell me about Hoang Kien.",
+          "How do I apply?",
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (messages.length === 0) {
+      generateGreeting();
+    }
+  }, []);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isLoading) return;
@@ -76,59 +132,42 @@ export function Chatbot({ onClose, onResize }: ChatbotProps) {
     setInputValue('');
     setIsLoading(true);
 
-    // Simulate API call to Gemini 2.5 Flash
-    setTimeout(() => {
+    try {
+      const updatedMessages = [...messages, userMessage];
+      const history = updatedMessages.map(({ content, sender }) => ({ content, sender }));
+      const lang = i18n.language === 'vi' ? 'Vietnamese' : 'English';
+      const finalPrompt = systemPrompt.replace('{{language}}', lang);
+      const response = await callGeminiApi(finalPrompt, history, content.trim());
+
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: getBotResponse(content),
+        content: response.content,
         sender: 'bot',
         timestamp: new Date(),
-        emotion: getBotEmotion(content)
+        emotion: response.emotion,
       };
 
-      setMessages(prev => [...prev, botResponse]);
+      setMessages((prev) => [...prev, botResponse]);
+      if (response.suggestions) {
+        setQuickSuggestions(response.suggestions);
+      }
+    } catch (error) {
+      console.error("Error calling Gemini API:", error);
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "Sorry, I'm having trouble connecting. Please try again later.",
+        sender: 'bot',
+        timestamp: new Date(),
+        emotion: 'neutral',
+      };
+      setMessages((prev) => [...prev, errorResponse]);
+    } finally {
       setIsLoading(false);
-    }, 1000 + Math.random() * 2000);
+    }
   };
 
-  const getBotResponse = (userInput: string): string => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('ninja ai') || input.includes('chương trình')) {
-      return 'Chương trình Ninja AI là khóa đào tạo chuyên sâu 6 tháng để trở thành AI Engineer. Chúng tôi cam kết 100% có việc làm sau tốt nghiệp với mức lương khởi điểm 15-25 triệu/tháng. Bạn muốn biết thêm về lộ trình học tập hay yêu cầu tuyển sinh?';
-    }
-    
-    if (input.includes('kinh nghiệm') || input.includes('kiên')) {
-      return 'Kiên có hơn 8 năm kinh nghiệm trong lĩnh vực công nghệ, từ lập trình viên đến founder. Anh đã xây dựng nhiều sản phẩm thành công và hiện đang mentor cho hơn 200 developers trẻ. Thế mạnh của Kiên là kết hợp kỹ thuật với tư duy kinh doanh.';
-    }
-    
-    if (input.includes('apply') || input.includes('ứng tuyển')) {
-      return 'Để ứng tuyển chương trình Ninja AI, bạn cần: 1) Gửi CV và thư động lực, 2) Tham gia test đánh giá năng lực, 3) Phỏng vấn với team. Hạn nộp hồ sơ là cuối tháng này. Bạn đã sẵn sàng để bắt đầu chưa?';
-    }
-    
-    if (input.includes('lộ trình') || input.includes('roadmap')) {
-      return 'Lộ trình 6 tháng: Tháng 1-2: Python & AI cơ bản, Tháng 3-4: Machine Learning & Deep Learning, Tháng 5-6: Computer Vision, NLP và dự án thực tế. Mỗi tháng có 1 dự án lớn để build portfolio.';
-    }
-    
-    return 'Cảm ơn bạn đã hỏi! Tôi có thể giúp bạn tìm hiểu về chương trình Ninja AI, kinh nghiệm của Kiên, cách ứng tuyển, lộ trình học tập và cơ hội việc làm. Bạn quan tâm đến chủ đề nào nhất?';
-  };
-
-  const getBotEmotion = (userInput: string): 'happy' | 'thinking' | 'curious' | 'neutral' => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('?') || input.includes('hỏi') || input.includes('gì')) {
-      return 'curious';
-    }
-    
-    if (input.includes('khó') || input.includes('phức tạp') || input.includes('làm sao')) {
-      return 'thinking';
-    }
-    
-    if (input.includes('tuyệt vời') || input.includes('cảm ơn') || input.includes('hay quá')) {
-      return 'happy';
-    }
-    
-    return 'neutral';
+  const handleNewChat = () => {
+    setMessages([]);
   };
 
   return (
@@ -148,6 +187,14 @@ export function Chatbot({ onClose, onResize }: ChatbotProps) {
         </div>
         
         <div className="flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleNewChat}
+            className="h-8 w-8"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -174,16 +221,25 @@ export function Chatbot({ onClose, onResize }: ChatbotProps) {
       {/* Emotion Display Area */}
       <div className="p-4 border-b border-sidebar-border">
         <div className="aspect-video bg-muted rounded-lg overflow-hidden relative">
-          <video
-            key={currentEmotion}
-            className="w-full h-full object-cover"
-            autoPlay
-            loop
-            muted
-            poster="/placeholder-avatar.jpg"
-          >
-            <source src={emotionVideos[currentEmotion]} type="video/mp4" />
-          </video>
+          {[0, 1].map((index) => (
+            <video
+              key={`${currentEmotion}-${index}`}
+              className={cn(
+                "absolute inset-0 w-full h-full object-cover transition-opacity duration-500",
+                activeVideo === index ? "opacity-100" : "opacity-0"
+              )}
+              autoPlay
+              loop={index === 1} // Only loop the second video
+              muted
+              playsInline
+              onEnded={() => {
+                if (index === 0) {
+                  setActiveVideo(1);
+                }
+              }}
+              src={videoSources[index]}
+            />
+          ))}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/50 text-white text-xs rounded">
             {currentEmotion}
@@ -219,7 +275,7 @@ export function Chatbot({ onClose, onResize }: ChatbotProps) {
                     : "bg-muted text-muted-foreground"
                 )}
               >
-                {message.content}
+                <ReactMarkdown>{message.content}</ReactMarkdown>
               </div>
               
               {message.sender === 'user' && (
@@ -246,22 +302,38 @@ export function Chatbot({ onClose, onResize }: ChatbotProps) {
       {/* Quick Suggestions */}
       <div className="p-4 border-t border-sidebar-border">
         <div className="space-y-2 mb-4">
-          <p className="text-xs font-medium text-muted-foreground">
-            Gợi ý nhanh:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {quickSuggestions.slice(0, 3).map((suggestion, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                size="sm"
-                className="text-xs h-8"
-                onClick={() => handleSendMessage(suggestion)}
-              >
-                {suggestion}
-              </Button>
-            ))}
+          <div className="flex justify-between items-center">
+            <p className="text-xs font-medium text-muted-foreground">
+              {t('chatbot.quickSuggestions')}
+            </p>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsQuickSuggestionsOpen(!isQuickSuggestionsOpen)}
+              className="h-6 w-6"
+            >
+              {isQuickSuggestionsOpen ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronUp className="h-4 w-4" />
+              )}
+            </Button>
           </div>
+          {isQuickSuggestionsOpen && (
+            <div className="flex flex-wrap gap-2">
+              {quickSuggestions.slice(0, 3).map((suggestion, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-8"
+                  onClick={() => handleSendMessage(suggestion)}
+                >
+                  {suggestion}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
         
         {/* Input */}
