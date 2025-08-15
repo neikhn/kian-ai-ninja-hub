@@ -27,6 +27,8 @@ export function HomePage() {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('animate-fade-in');
+          entry.target.classList.remove('opacity-0');
+          observer.unobserve(entry.target);
         }
       });
     };
