@@ -110,9 +110,9 @@ export function Header({ onChatbotToggle, isChatbotOpen }: HeaderProps) {
               variant="ghost"
               size="icon"
               onClick={toggleLanguage}
-              className="h-9 w-9"
+              className="h-9 w-9 btn-gradient-hover relative"
             >
-              <Languages className="h-4 w-4" />
+              <Languages className="h-4 w-4 relative z-10" />
               <span className="sr-only">Toggle language</span>
             </Button>
 
@@ -121,12 +121,12 @@ export function Header({ onChatbotToggle, isChatbotOpen }: HeaderProps) {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              className="h-9 w-9"
+              className="h-9 w-9 btn-gradient-hover relative"
             >
               {isDark ? (
-                <Sun className="h-4 w-4" />
+                <Sun className="h-4 w-4 relative z-10" />
               ) : (
-                <Moon className="h-4 w-4" />
+                <Moon className="h-4 w-4 relative z-10" />
               )}
               <span className="sr-only">Toggle theme</span>
             </Button>
@@ -137,11 +137,11 @@ export function Header({ onChatbotToggle, isChatbotOpen }: HeaderProps) {
               size="icon"
               onClick={onChatbotToggle}
               className={cn(
-                "h-9 w-9",
+                "h-9 w-9 btn-gradient-hover relative",
                 isChatbotOpen && "bg-accent text-accent-foreground"
               )}
             >
-              <MessageCircle className="h-4 w-4" />
+              <MessageCircle className="h-4 w-4 relative z-10" />
               <span className="sr-only">Toggle chatbot</span>
             </Button>
 

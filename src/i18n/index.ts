@@ -132,6 +132,21 @@ const resources = {
           "Cơ hội việc làm sau khóa học"
         ]
       },
+      // Footer
+      footer: {
+        tagline: "Kết nối công nghệ với con người để tạo ra những trải nghiệm số đáng nhớ.",
+        quickLinks: "Liên kết nhanh",
+        aboutMe: "Giới thiệu về tôi",
+        ninjaProgram: "Chương trình Ninja AI",
+        contact: "Liên hệ",
+        legal: "Pháp lý",
+        privacyPolicy: "Chính sách bảo mật",
+        termsOfUse: "Điều khoản sử dụng",
+        connect: "Kết nối",
+        copyright: "© 2024 Nguyễn Hoàng Kiên. All rights reserved.",
+        madeWith: "Made with",
+        inVietnam: "in Vietnam"
+      },
       // Common
       common: {
         loading: "Đang tải...",
@@ -270,6 +285,21 @@ const resources = {
           "AI learning roadmap",
           "Job opportunities after course"
         ]
+      },
+      // Footer
+      footer: {
+        tagline: "Connecting technology with people to create memorable digital experiences.",
+        quickLinks: "Quick Links",
+        aboutMe: "About Me",
+        ninjaProgram: "Ninja AI Program",
+        contact: "Contact",
+        legal: "Legal",
+        privacyPolicy: "Privacy Policy",
+        termsOfUse: "Terms of Use",
+        connect: "Connect",
+        copyright: "© 2024 Nguyễn Hoàng Kiên. All rights reserved.",
+        madeWith: "Made with",
+        inVietnam: "in Vietnam"
       },
       // Common
       common: {

@@ -27,20 +27,20 @@ export function Footer() {
               </span>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Kết nối công nghệ với con người để tạo ra những trải nghiệm số đáng nhớ.
+              {t('footer.tagline')}
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">Liên kết nhanh</h3>
+            <h3 className="font-semibold text-foreground">{t('footer.quickLinks')}</h3>
             <ul className="space-y-2">
               <li>
                 <NavLink 
                   to="/" 
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
-                  Giới thiệu về tôi
+                  {t('footer.aboutMe')}
                 </NavLink>
               </li>
               <li>
@@ -48,7 +48,7 @@ export function Footer() {
                   to="/program/ninja-ai" 
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
-                  Chương trình Ninja AI
+                  {t('footer.ninjaProgram')}
                 </NavLink>
               </li>
               <li>
@@ -56,7 +56,7 @@ export function Footer() {
                   href="/#contact" 
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
-                  Liên hệ
+                  {t('footer.contact')}
                 </a>
               </li>
             </ul>
@@ -64,14 +64,14 @@ export function Footer() {
 
           {/* Legal */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">Pháp lý</h3>
+            <h3 className="font-semibold text-foreground">{t('footer.legal')}</h3>
             <ul className="space-y-2">
               <li>
                 <NavLink 
                   to="/privacy-policy" 
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
-                  Chính sách bảo mật
+                  {t('footer.privacyPolicy')}
                 </NavLink>
               </li>
               <li>
@@ -79,7 +79,7 @@ export function Footer() {
                   to="/terms-of-use" 
                   className="text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
-                  Điều khoản sử dụng
+                  {t('footer.termsOfUse')}
                 </NavLink>
               </li>
             </ul>
@@ -87,7 +87,7 @@ export function Footer() {
 
           {/* Contact & Social */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">Kết nối</h3>
+            <h3 className="font-semibold text-foreground">{t('footer.connect')}</h3>
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
@@ -124,13 +124,13 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-border/50">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-muted-foreground text-sm">
-              © 2024 Nguyễn Hoàng Kiên. All rights reserved.
+              {t('footer.copyright')}
             </p>
             
             <div className="flex items-center space-x-1 text-muted-foreground text-sm mt-4 md:mt-0">
-              <span>Made with</span>
+              <span>{t('footer.madeWith')}</span>
               <Heart className="h-4 w-4 text-red-500 fill-current" />
-              <span>in Vietnam</span>
+              <span>{t('footer.inVietnam')}</span>
             </div>
           </div>
         </div>
